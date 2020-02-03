@@ -1,29 +1,21 @@
 {
+    "compileOnSave": false,
     "compilerOptions": {
-        "baseUrl": ".",
+        "baseUrl": "./",
+        "outDir": "./dist/out-tsc",
+        "sourceMap": true,
+        "declaration": false,
+        "module": "es2015",
+        "moduleResolution": "node",
         "emitDecoratorMetadata": true,
         "experimentalDecorators": true,
-        "module": "commonjs",
-        "moduleResolution": "node",
-        "strict": true,
-        "noFallthroughCasesInSwitch": true,
-        "sourceMap": true,
-        "rootDir": ".",
-        "inlineSources": true,
-		"noUnusedLocals": true, 
-        "noUnusedParameters": true, 
-        "lib": [
-            "es6",
-            "dom"
-        ],
+        "strictNullChecks": true,
+        "importHelpers": true,
         "target": "es5",
-        "skipLibCheck": true,
-        "types": [
-            "jasmine",
-            "node"
-        ]
-    },
-    "exclude": [
-        "node_modules"
-    ]
+        "typeRoots": ["node_modules/@types"],
+        "lib": ["es2018", "dom"],
+        "paths": {
+            "angular-auth-oidc-client": ["dist/angular-auth-oidc-client"]
+        }
+    }
 }

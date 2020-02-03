@@ -1,8 +1,279 @@
 ## angular-auth-oidc-client Changelog
 
-<a name="2018-08-01"></a>
-### 2018-08-01 version 6.0.3
-* fixes for storage
+<a name="2020-01-24"></a>
+### 2020-01-24 version 10.0.14
+* 552-add-config-ignore-nonce-after-refresh
+* bug-xmlurlencode-has-newlines
+* clean up some file formats
+
+<a name="2020-01-03"></a>
+### 2020-01-03 version 10.0.11
+* Added renew process denotation to AuthorizationResult
+
+<a name="2019-10-07"></a>
+### 2019-10-07 version 10.0.10
+* bug fix logging, code flow callback
+
+<a name="2019-10-05"></a>
+### 2019-10-05 version 10.0.9
+* generic OidcSecurityService.getUserData
+* OidcSecurityService with some observables
+* Do not check idToken nonce when using refreshToken
+* strictNullChecks
+* safer-silent-renew
+
+<a name="2019-09-20"></a>
+### 2019-09-20 version 10.0.8
+* reduce size of the package
+
+<a name="2019-09-11"></a>
+### 2019-09-11 version 10.0.7
+* Ability to change the amount of seconds for the IsAuthorizedRace to do a Timeout
+
+<a name="2019-09-05"></a>
+### 2019-09-05 version 10.0.6
+* fixing url parse wo format
+* documentation fixes
+
+<a name="2019-09-03"></a>
+### 2019-09-03 version 10.0.5
+* use_refresh_token configuration added.
+
+<a name="2019-09-01"></a>
+### 2019-09-01 version 10.0.4
+* Added support for refresh tokens in code flow
+* expose logger service
+
+<a name="2019-07-30"></a>
+### 2019-07-30 version 10.0.3
+* Added a try catch to handle the CORS error that is thrown if the parent has a different origin htne the iframe. Issue #466
+
+<a name="2019-06-25"></a>
+### 2019-06-25 version 10.0.2
+* bug fix: onConfigurationLoaded does not fired 
+* bug fix: [SSR] Session storage is not defined
+
+<a name="2019-06-21"></a>
+### 2019-06-21 version 10.0.1
+* revert angular build to angular 7, fix npm dist
+
+
+<a name="2019-06-21"></a>
+### 2019-05-24 version 10.0.0
+* remove silent_redirect_url only use silent_renew_url
+* refactored configuration for module, angular style
+* rename OpenIDImplicitFlowConfiguration to OpenIDConfiguration 
+
+## Breaking changes
+
+Before
+```
+this.oidcConfigService.onConfigurationLoaded.subscribe(() => {
+
+	const openIDImplicitFlowConfiguration = new OpenIDImplicitFlowConfiguration();
+	openIDImplicitFlowConfiguration.stsServer = this.oidcConfigService.clientConfiguration.stsServer;
+	openIDImplicitFlowConfiguration.redirect_url = this.oidcConfigService.clientConfiguration.redirect_url;
+	openIDImplicitFlowConfiguration.client_id = this.oidcConfigService.clientConfiguration.client_id;
+	openIDImplicitFlowConfiguration.response_type = this.oidcConfigService.clientConfiguration.response_type;
+	
+	...
+	
+	configuration.FileServer = this.oidcConfigService.clientConfiguration.apiFileServer;
+	configuration.Server = this.oidcConfigService.clientConfiguration.apiServer;
+
+	const authWellKnownEndpoints = new AuthWellKnownEndpoints();
+	authWellKnownEndpoints.setWellKnownEndpoints(this.oidcConfigService.wellKnownEndpoints);
+
+	this.oidcSecurityService.setupModule(openIDImplicitFlowConfiguration, authWellKnownEndpoints);
+```
+
+After
+```
+
+import {
+    AuthModule,
+    OidcSecurityService,
+    ConfigResult,
+    OidcConfigService,
+    OpenIdConfiguration
+} from 'angular-auth-oidc-client';
+
+export function loadConfig(oidcConfigService: OidcConfigService) {
+    console.log('APP_INITIALIZER STARTING');
+    return () => oidcConfigService.load(`${window.location.origin}/api/ClientAppSettings`);
+}
+
+@NgModule({
+    imports: [
+        ...
+        HttpClientModule,
+        AuthModule.forRoot(),
+    ],
+    providers: [
+        OidcConfigService,
+        OidcSecurityService,
+        {
+            provide: APP_INITIALIZER,
+            useFactory: loadConfig,
+            deps: [OidcConfigService],
+            multi: true
+        }
+    ],
+    bootstrap: [AppComponent],
+})
+
+export class AppModule {
+
+    constructor(
+        private oidcSecurityService: OidcSecurityService,
+        private oidcConfigService: OidcConfigService,
+    ) {
+
+        this.oidcConfigService.onConfigurationLoaded.subscribe((configResult: ConfigResult) => {
+
+            const config: OpenIdConfiguration = {
+                stsServer: configResult.customConfig.stsServer,
+                redirect_url: configResult.customConfig.redirect_url,
+                client_id: configResult.customConfig.client_id,
+                response_type: configResult.customConfig.response_type,
+                scope: configResult.customConfig.scope,
+                post_logout_redirect_uri: configResult.customConfig.post_logout_redirect_uri,
+                start_checksession: configResult.customConfig.start_checksession,
+                silent_renew: configResult.customConfig.silent_renew,
+                silent_renew_url: configResult.customConfig.redirect_url + '/silent-renew.html',
+                post_login_route: configResult.customConfig.startup_route,
+                forbidden_route: configResult.customConfig.forbidden_route,
+                unauthorized_route: configResult.customConfig.unauthorized_route,
+                log_console_warning_active: configResult.customConfig.log_console_warning_active,
+                log_console_debug_active: configResult.customConfig.log_console_debug_active,
+                max_id_token_iat_offset_allowed_in_seconds: configResult.customConfig.max_id_token_iat_offset_allowed_in_seconds,
+                history_cleanup_off: true
+                // iss_validation_off: false
+                // disable_iat_offset_validation: true
+            };
+
+            this.oidcSecurityService.setupModule(config, configResult.authWellknownEndpoints);
+        });
+    }
+}
+
+```
+
+<a name="2019-05-21"></a>
+### 2019-05-21 version 9.0.8
+* authNonce not cleared in storage after unsuccessful login and logout
+* Should 5 seconds timeout on silent_renew be configurable? => fails fast now if server responds
+
+<a name="2019-04-28"></a>
+### 2019-04-28 version 9.0.7
+* increased length of state value for OIDC authorize request
+
+<a name="2019-04-22"></a>
+### 2019-04-22 version 9.0.6
+* session_state is optional for code flow
+
+<a name="2019-04-14"></a>
+### 2019-04-14 version 9.0.5
+* Added disable_iat_offset_validation configuration for clients with clock problems
+* Updated the Docs
+
+<a name="2019-03-29"></a>
+### 2019-03-29 version 9.0.4
+* Updated the Docs
+* Adding sample usage to repo
+
+<a name="2019-03-22"></a>
+### 2019-03-22 version 9.0.3
+* Updated the Docs
+* Changed to Angular-CLI builder
+* Added a sample in this repo
+
+<a name="2019-02-27"></a>
+### 2019-02-27 version 9.0.3
+* Add TokenHelperService to public API
+* logs: use !! to display getIdToken() and _userData.value in silentRenewHeartBeatCheck()
+
+<a name="2019-02-01"></a>
+### 2019-02-01 version 9.0.2
+* bug fix at_hash is optional for code flow
+* removing session_state check from code flow response
+
+<a name="2019-01-11"></a>
+### 2019-01-11 version 9.0.1
+* Validation state in code callback redirect
+* Make it possible to turn off history clean up, so that the angular state is preserved.
+
+<a name="2019-01-08"></a>
+### 2019-01-08 version 9.0.0
+* Support for OpenID Connect Code Flow with PKCE
+
+### Breaking changes:
+
+Implicit flow callback renamed from authorizedCallback() to authorizedImplicitFlowCallback()
+
+<a name="2018-11-16"></a>
+### 2018-11-16 version 8.0.3
+* Changed iframe to avoid changing history state for repeated silent token renewals
+* make it possible to turn the iss validation off per configuration
+* reset history after OIDC callback with tokens
+
+<a name="2018-11-07"></a>
+### 2018-11-07 version 8.0.2
+* When `logOff()` is called storage should be cleared before emitting an authorization event.
+* AuthConfiguration object will now always return false for `start_checksession and silent_renew` properties when not running on a browser platform.
+
+<a name="2018-11-02"></a>
+### 2018-11-02 version 8.0.1
+* Adding an `onConfigurationChange` Observable to `OidcSecurityService
+
+<a name="2018-10-31"></a>
+### 2018-10-31 version 8.0.0
+* replaced eventemitters with Subjects/Observables and updated and docs
+* Optional url handler for logoff function 
+* silent_renew is now off by default (false). 
+* Fix for when token contains multiple dashes or underscores
+
+<a name="2018-10-24"></a>
+### 2018-10-20 version 7.0.3
+* Unicode special characters (accents and such) in JWT are now properly…
+
+<a name="2018-10-20"></a>
+### 2018-10-20 version 7.0.2
+* authorizedCallback should wait until the module is setup before running. 
+
+<a name="2018-10-18"></a>
+### 2018-10-18 version 7.0.1
+* Check session will now be stopped when the user is logged out
+
+<a name="2018-10-14"></a>
+### 2018-10-14 version 7.0.0
+* Adding validation state result info to authorization event result
+* bug fixes in check session
+
+<a name="2018-10-07"></a>
+### 2018-10-07 version 6.0.12
+* Refactoring getIsAuthorized()
+* A blank `session_state` in the check session heartbeat should emit a …
+* Fixing inability to turn off silent_renew and adding safety timeout
+* check for valid tokens on start up
+
+<a name="2018-10-03"></a>
+### 2018-10-03 version 6.0.11
+* silent_renew inconsistent with execution
+
+<a name="2018-09-14"></a>
+### 2018-09-14 version 6.0.10
+* Handle callback params that contain equals char
+
+<a name="2018-09-09"></a>
+### 2018-09-09 version 6.0.7
+* Removing the fetch package, using the httpClient now instead
+
+<a name="2018-08-18"></a>
+### 2018-08-18 version 6.0.6
+* Add unique ending to key to prevent storage crossover
+* Public resetAuthorizationData method and getEndSessionUrl function
+* wso2 Identity Server audience validation failed support
 
 <a name="2018-07-09"></a>
 ### 2018-07-09 version 6.0.2

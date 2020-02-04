@@ -849,6 +849,15 @@ export class OidcSecurityService {
         this.loggerService.logDebug('storing to storage, getting the roles');
         this.oidcSecurityCommon.accessToken = access_token;
         this.oidcSecurityCommon.idToken = id_token;
+        const expiresIn = this.oidcSecurityCommon.authResult.expires_in;
+        this.loggerService.logDebug('expiresIn' + expiresIn);
+        if (expiresIn) {
+          const expiresInMilliSeconds = expiresIn * 1000;
+          const now = new Date();
+          const expiresAt = now.getTime() + expiresInMilliSeconds;
+          this.oidcSecurityCommon.expiresAt = expiresAt.toString();
+          this.loggerService.logDebug('expiresAt' + expiresAt);
+        }
         this.setIsAuthorized(true);
         this.oidcSecurityCommon.isAuthorized = true;
     }
@@ -955,16 +964,21 @@ export class OidcSecurityService {
                 'silentRenewHeartBeatCheck\r\n' +
                     `\tsilentRenewRunning: ${this.oidcSecurityCommon.silentRenewRunning === 'running'}\r\n` +
                     `\tidToken: ${!!this.getIdToken()}\r\n` +
+                    `\ttoken: ${!!this.getToken()}\r\n` +
                     `\t_userData.value: ${!!this._userData.value}`
             );
-            if (this._userData.value && this.oidcSecurityCommon.silentRenewRunning !== 'running' && this.getIdToken()) {
+            if (this._userData.value && this.oidcSecurityCommon.silentRenewRunning !== 'running' && this.getIdToken() && this.getToken()) {
                 if (
                     this.oidcSecurityValidation.isTokenExpired(
                         this.oidcSecurityCommon.idToken,
                         this.configurationProvider.openIDConfiguration.silent_renew_offset_in_seconds
-                    )
+                    ) ||
+                  this.oidcSecurityValidation.isAccessTokenExpired(
+                    this.oidcSecurityCommon.expiresAt,
+                    this.configurationProvider.openIDConfiguration.silent_renew_offset_in_seconds
+                  )
                 ) {
-                    this.loggerService.logDebug('IsAuthorized: id_token isTokenExpired, start silent renew if active');
+                    this.loggerService.logDebug('IsAuthorized: id_token or token are expired, start silent renew if active');
 
                     if (this.configurationProvider.openIDConfiguration.silent_renew) {
                         this.refreshSession().subscribe(

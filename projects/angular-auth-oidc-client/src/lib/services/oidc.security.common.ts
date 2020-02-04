@@ -5,7 +5,6 @@ export type SilentRenewState = 'running' | '';
 
 @Injectable()
 export class OidcSecurityCommon {
-    private storageAuthResult = 'authorizationResult';
 
     public get authResult(): any {
         return this.retrieve(this.storageAuthResult);
@@ -15,8 +14,6 @@ export class OidcSecurityCommon {
         this.store(this.storageAuthResult, value);
     }
 
-    private storageAccessToken = 'authorizationData';
-
     public get accessToken(): string {
         return this.retrieve(this.storageAccessToken) || '';
     }
@@ -24,8 +21,6 @@ export class OidcSecurityCommon {
     public set accessToken(value: string) {
         this.store(this.storageAccessToken, value);
     }
-
-    private storageIdToken = 'authorizationDataIdToken';
 
     public get idToken(): string {
         return this.retrieve(this.storageIdToken) || '';
@@ -35,8 +30,6 @@ export class OidcSecurityCommon {
         this.store(this.storageIdToken, value);
     }
 
-    private storageIsAuthorized = '_isAuthorized';
-
     public get isAuthorized(): boolean | undefined {
         return this.retrieve(this.storageIsAuthorized);
     }
@@ -44,8 +37,6 @@ export class OidcSecurityCommon {
     public set isAuthorized(value: boolean | undefined) {
         this.store(this.storageIsAuthorized, value);
     }
-
-    private storageUserData = 'userData';
 
     public get userData(): any {
         return this.retrieve(this.storageUserData);
@@ -55,8 +46,6 @@ export class OidcSecurityCommon {
         this.store(this.storageUserData, value);
     }
 
-    private storageAuthNonce = 'authNonce';
-
     public get authNonce(): string {
         return this.retrieve(this.storageAuthNonce) || '';
     }
@@ -64,8 +53,6 @@ export class OidcSecurityCommon {
     public set authNonce(value: string) {
         this.store(this.storageAuthNonce, value);
     }
-
-    private storageCodeVerifier = 'code_verifier';
 
     public get code_verifier(): string {
         return this.retrieve(this.storageCodeVerifier) || '';
@@ -75,8 +62,6 @@ export class OidcSecurityCommon {
         this.store(this.storageCodeVerifier, value);
     }
 
-    private storageAuthStateControl = 'authStateControl';
-
     public get authStateControl(): string {
         return this.retrieve(this.storageAuthStateControl) || '';
     }
@@ -84,8 +69,6 @@ export class OidcSecurityCommon {
     public set authStateControl(value: string) {
         this.store(this.storageAuthStateControl, value);
     }
-
-    private storageSessionState = 'session_state';
 
     public get sessionState(): any {
         return this.retrieve(this.storageSessionState);
@@ -95,8 +78,6 @@ export class OidcSecurityCommon {
         this.store(this.storageSessionState, value);
     }
 
-    private storageSilentRenewRunning = 'storage_silent_renew_running';
-
     public get silentRenewRunning(): SilentRenewState {
         return this.retrieve(this.storageSilentRenewRunning) || '';
     }
@@ -104,8 +85,6 @@ export class OidcSecurityCommon {
     public set silentRenewRunning(value: SilentRenewState) {
         this.store(this.storageSilentRenewRunning, value);
     }
-
-    private storageCustomRequestParams = 'storage_custom_request_params';
 
     public get customRequestParams(): {
         [key: string]: string | number | boolean;
@@ -118,6 +97,38 @@ export class OidcSecurityCommon {
     }
 
     constructor(private oidcSecurityStorage: OidcSecurityStorage) {}
+
+    public get expiresAt(): string {
+    return this.retrieve(this.storageExpiresAt) || '';
+  }
+
+  public set expiresAt(value: string) {
+    this.store(this.storageExpiresAt, value);
+  }
+
+    private storageAuthResult = 'authorizationResult';
+
+    private storageAccessToken = 'authorizationData';
+
+    private storageIdToken = 'authorizationDataIdToken';
+
+    private storageIsAuthorized = '_isAuthorized';
+
+    private storageUserData = 'userData';
+
+    private storageAuthNonce = 'authNonce';
+
+    private storageCodeVerifier = 'code_verifier';
+
+    private storageAuthStateControl = 'authStateControl';
+
+    private storageSessionState = 'session_state';
+
+    private storageSilentRenewRunning = 'storage_silent_renew_running';
+
+    private storageCustomRequestParams = 'storage_custom_request_params';
+
+    private storageExpiresAt = 'expires_at';
 
     private retrieve(key: string): any {
         return this.oidcSecurityStorage.read(key);
@@ -137,6 +148,7 @@ export class OidcSecurityCommon {
             this.store(this.storageIdToken, '');
             this.store(this.storageUserData, '');
             this.store(this.storageCodeVerifier, '');
+            this.store(this.storageExpiresAt, '');
         }
     }
 

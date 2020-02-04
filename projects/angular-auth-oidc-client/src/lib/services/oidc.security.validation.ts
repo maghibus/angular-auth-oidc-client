@@ -65,6 +65,21 @@ export class OidcSecurityValidation {
         return !this.validate_id_token_exp_not_expired(decoded, offsetSeconds);
     }
 
+    isAccessTokenExpired(expiresAt: string, offsetSeconds?: number): boolean {
+      return !this.validate_token_not_expired(expiresAt, offsetSeconds);
+    }
+
+    validate_token_not_expired(expiresAt: string, offsetSeconds: number | undefined): boolean {
+
+      offsetSeconds = offsetSeconds || 0;
+      const nowWithOffset = new Date().valueOf() + offsetSeconds * 1000;
+      if (expiresAt && parseInt(expiresAt, 10) < nowWithOffset) {
+            return false;
+          }
+
+      return true;
+    }
+
     // id_token C7: The current time MUST be before the time represented by the exp Claim
     // (possibly allowing for some small leeway to account for clock skew).
     // tslint:disable-next-line: variable-name
@@ -388,4 +403,6 @@ export class OidcSecurityValidation {
 
         return testdata;
     }
+
+
 }
